@@ -119,7 +119,7 @@ function setup() {
   gestorFrec = new GestorSenial(NOTA_MIN, NOTA_MAX);
 
   makeNuclei();
-  init();
+background('#f5f2e8');
 }
 
 // ══════════════════════════════════════════════════════
@@ -127,6 +127,22 @@ function setup() {
 // ══════════════════════════════════════════════════════
 
 function draw() {
+if (!audioIniciado) {
+    background(255);
+
+    rectMode(CENTER);
+
+    fill(230);
+    stroke(0);
+    rect(width/2, height/2, 250, 60, 10);
+
+    fill(0);
+    noStroke();
+    textAlign(CENTER, CENTER);
+    textSize(22);
+    text("Haz click para empezar", width/2, height/2);
+    return;
+}
   let velBoost = 1;
 
   if (audioIniciado) {
@@ -374,6 +390,7 @@ async function iniciarAudio() {
         marcaInicioSonido = millis();
         marcaFinSonido    = millis();
         marcaUltimoPitch  = millis();
+         init();
         startPitch();
         console.log('Audio activado');
       },
