@@ -106,6 +106,7 @@ const VEL_LENTA  = 0.25;
 const MAX_OLEADAS = 3;
 let numOleadas = 0;
 
+
 // ══════════════════════════════════════════════════════
 //  SETUP
 // ══════════════════════════════════════════════════════
@@ -119,7 +120,9 @@ function setup() {
   gestorFrec = new GestorSenial(NOTA_MIN, NOTA_MAX);
 
   makeNuclei();
-background('#f5f2e8');
+  
+  background('#f5f2e8');
+  //init();
 }
 
 // ══════════════════════════════════════════════════════
@@ -143,11 +146,13 @@ if (!audioIniciado) {
     text("Haz click para empezar", width/2, height/2);
     return;
 }
+
   let velBoost = 1;
 
   if (audioIniciado) {
     // ── Leer señales ──────────────────────────────────
     amp = mic.getLevel();
+    
 
     if (calibrandoAmp) {
       pisoAmp  = min(pisoAmp, amp);
@@ -182,9 +187,11 @@ if (!audioIniciado) {
 
       // ── MÁQUINA DE DOBLE PALMADA ──────────────────
       // Un golpe válido es: corto + amp alta + sin pitch
-      let esGolpeValido = durSonido < DUR_MAX_PALMADA_MS
-                       && ampMaxGolpeActual > UMBRAL_PALMADA_AMP
-                       && !hayPitch;
+      //let esGolpeValido = durSonido < DUR_MAX_PALMADA_MS
+                       //&& ampMaxGolpeActual > UMBRAL_PALMADA_AMP
+                       //&& !hayPitch;
+
+       let esGolpeValido = durSonido < DUR_MAX_PALMADA_MS && ampMaxGolpeActual > UMBRAL_PALMADA_AMP;
 
       if (estadoPalmada === 'espera') {
         if (esGolpeValido) {
@@ -219,6 +226,8 @@ if (!audioIniciado) {
       if (!sonidoLargo && hayPitch) {
         let esAgudo = notaMidi > NOTA_CORTE_GRAVE_AGUDO;
 
+        console.log("Detectado: Nota MIDI " + Math.round(notaMidi) + " | ¿Es agudo?: " + esAgudo);
+
         if (esAgudo && millis() - tUltimaOleada > COOLDOWN_OLEADA_MS) {
           if (numOleadas < MAX_OLEADAS) {
             console.log('>>> SONIDO CORTO AGUDO → oleada (' + (numOleadas + 1) + '/' + MAX_OLEADAS + ')');
@@ -248,9 +257,19 @@ if (!audioIniciado) {
     }
 
     // ── SONIDO LARGO: velRapida / velLenta ────────────
-    if (haySonido && sonidoLargo) {
+    /*if (haySonido && sonidoLargo) {
       velBoost = intensidad > UMBRAL_INTENSIDAD_ALTA ? VEL_RAPIDA : VEL_LENTA;
-    }
+    }*/
+
+      if (haySonido && sonidoLargo) {
+  if (intensidad > UMBRAL_INTENSIDAD_ALTA) {
+    velBoost = VEL_RAPIDA;
+    console.log(">>> VELOCIDAD RÁPIDA (Intensidad: " + intensidad.toFixed(2) + ")");
+  } else {
+    velBoost = VEL_LENTA;
+    console.log(">>> VELOCIDAD LENTA (Intensidad: " + intensidad.toFixed(2) + ")");
+  }
+}
 
     antesHabiaSonido = haySonido;
 
@@ -273,6 +292,8 @@ if (!audioIniciado) {
     noLoop();
     escucharEnPausa();
   }
+
+  
 }
 
 // ══════════════════════════════════════════════════════
@@ -316,9 +337,11 @@ function escucharEnPausa() {
       marcaFinSonido = Date.now();
 
       // Doble palmada → reinicio
-      let esGolpeValido = durSonido < DUR_MAX_PALMADA_MS
+      /*let esGolpeValido = durSonido < DUR_MAX_PALMADA_MS
                        && ampMaxGolpeActual > UMBRAL_PALMADA_AMP
-                       && !hayPitch;
+                       && !hayPitch;*/
+      
+     let esGolpeValido = durSonido < DUR_MAX_PALMADA_MS && ampMaxGolpeActual > UMBRAL_PALMADA_AMP;                
 
       if (estadoPalmada === 'espera') {
         if (esGolpeValido) {
@@ -390,7 +413,7 @@ async function iniciarAudio() {
         marcaInicioSonido = millis();
         marcaFinSonido    = millis();
         marcaUltimoPitch  = millis();
-         init();
+        init();
         startPitch();
         console.log('Audio activado');
       },
